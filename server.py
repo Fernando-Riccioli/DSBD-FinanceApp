@@ -62,15 +62,38 @@ class ServizioUtente(finance_app_pb2_grpc.ServizioUtenteServicer):  #estensione
         finally:
             if connection.is_connected():
                 connection.close()
-    
-    #rpc RecuperaValore (Email) returns (Valore) {}
-    #rpc CalcolaMediaValori (DatiMediaValori) returns (Valore) {}
 
 class ServizioStock(finance_app_pb2_grpc.ServizioStockServicer):
 
     def RecuperaValore(self, request, context):
-        return finance_app_pb2.Valore(valore = 1)
+        try:
+            connection = connessione_db()
+            cursor = connection.cursor()
+            query = "SELECT valore FROM data WHERE email = %s ORDER BY timestamp DESC LIMIT 1"
+            cursor.execute(query, (request.email,))
+            risultato = cursor.fetchone()
+            return finance_app_pb2.Valore(valore = risultato)
+        except mysql.connector.Error as errore:
+            print(f"Errore durante la richiesta: {errore}")
+            return finance_app_pb2.Valore(valore = risultato)
+        finally:
+            if connection.is_connected():
+                connection.close()
+        
 
     def CalcolaMediaValori(self, request, context):
-        #logica
-        return finance_app_pb2.Valore(valore = 1)
+        try:
+            connection = connessione_db()
+            cursor = connection.cursor()
+            query = """SELECT AVG(valore) AS media FROM data WHERE email = %s AND ticker =
+                     ( SELECT ticker FROM data WHERE email = %s ORDER BY timestamp DESC LIMIT 1) 
+                     ORDER BY timestamp DESC LIMIT %s"""
+            cursor.execute(query, (request.email, request.numeroDati))
+            risultato = cursor.fetchone()
+            return finance_app_pb2.Valore(valore = risultato)
+        except mysql.connector.Error as errore:
+            print(f"Errore durante la richiesta: {errore}")
+            return finance_app_pb2.Valore(valore = risultato)
+        finally:
+            if connection.is_connected():
+                connection.close()
