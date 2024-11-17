@@ -19,7 +19,7 @@ class CircuitBreaker:
                 if time_since_failure > self.recovery_timeout:
                     self.state = 'HALF_OPEN'
                 else:
-                    raise CircuitBreakerOpenException("Circuit is open. Call denied.")  #non necessito return
+                    raise CircuitBreakerOpenException("Il circuito è aperto, chiamata negata.")  #non necessito return
             
             try:
                 result = func(*args, **kwargs)

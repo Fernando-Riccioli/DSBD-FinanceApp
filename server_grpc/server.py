@@ -1,3 +1,5 @@
+import grpc
+from concurrent import futures
 import finance_app_pb2
 import finance_app_pb2_grpc
 import mysql.connector
@@ -106,3 +108,16 @@ class ServizioStock(finance_app_pb2_grpc.ServizioStockServicer):
                 cursor.close()
             if connection.is_connected():
                 connection.close()
+
+def serve():
+    port = '50051'
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    finance_app_pb2_grpc.add_ServizioUtenteServicer_to_server(ServizioUtente, server)   #servizio richiesto dall'interfaccia
+    finance_app_pb2_grpc.add_ServizioStockServicer_to_server(ServizioStock, server)
+    print("Servizio Utente e Servizio Stock iniziati.")
+    server.add_insecure_port('[::]:' + port)    #qualsiasi indirizzo di rete sulla porta
+    server.start()  #asincrono (non blocca l'esecuzione del programma )
+    server.wait_for_termination()   #necessario per condizione sopra
+    
+if __name__ == '__main__':
+    serve()
