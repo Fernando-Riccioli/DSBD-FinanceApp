@@ -1,4 +1,3 @@
-import grpc
 import finance_app_pb2
 import finance_app_pb2_grpc
 import mysql.connector
