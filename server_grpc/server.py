@@ -17,7 +17,7 @@ def connessione_db():
 
 class ServizioUtente(finance_app_pb2_grpc.ServizioUtenteServicer):  #estensione
 
-    def RegistraUtente(self, request, context): #request è il messaggio ricevuto
+    def registra_utente(self, request, context): #request è il messaggio ricevuto
         try:
             connection = connessione_db()
             cursor = connection.cursor()
@@ -29,10 +29,12 @@ class ServizioUtente(finance_app_pb2_grpc.ServizioUtenteServicer):  #estensione
             print(f"Errore durante la registrazione: {errore}")
             return finance_app_pb2.Conferma(conferma = False, messaggio = f"Errore durante la registrazione: {errore}")
         finally:
+            if cursor:
+                cursor.close()
             if connection.is_connected():
                 connection.close()  #viene eseguito anche dopo un return preso
         
-    def AggiornaTicker(self, request, context):
+    def aggiorna_ticker(self, request, context):
         try:
             connection = connessione_db()
             cursor = connection.cursor()
@@ -44,10 +46,12 @@ class ServizioUtente(finance_app_pb2_grpc.ServizioUtenteServicer):  #estensione
             print(f"Errore durante l'aggiornamento: {errore}")
             return finance_app_pb2.Conferma(conferma = False, messaggio = f"Errore durante l'aggiornamento: {errore}")
         finally:
+            if cursor:
+                cursor.close()
             if connection.is_connected():
                 connection.close()
     
-    def CancellaUtente(self, request, context):
+    def cancella_utente(self, request, context):
         try:
             connection = connessione_db()
             cursor = connection.cursor()
@@ -59,12 +63,14 @@ class ServizioUtente(finance_app_pb2_grpc.ServizioUtenteServicer):  #estensione
             print(f"Errore durante l'eliminazione: {errore}")
             return finance_app_pb2.Conferma(conferma = False, messaggio = f"Errore durante l'eliminazione: {errore}")
         finally:
+            if cursor:
+                cursor.close()
             if connection.is_connected():
                 connection.close()
 
 class ServizioStock(finance_app_pb2_grpc.ServizioStockServicer):
 
-    def RecuperaValore(self, request, context):
+    def recupera_valore(self, request, context):
         try:
             connection = connessione_db()
             cursor = connection.cursor()
@@ -76,23 +82,27 @@ class ServizioStock(finance_app_pb2_grpc.ServizioStockServicer):
             print(f"Errore durante la richiesta: {errore}")
             return finance_app_pb2.Valore(valore = risultato)
         finally:
+            if cursor:
+                cursor.close()
             if connection.is_connected():
                 connection.close()
         
 
-    def CalcolaMediaValori(self, request, context):
+    def calcola_media_valori(self, request, context):
         try:
             connection = connessione_db()
             cursor = connection.cursor()
-            query = """SELECT AVG(valore) AS media FROM data WHERE email = %s AND ticker =
-                     ( SELECT ticker FROM data WHERE email = %s ORDER BY timestamp DESC LIMIT 1) 
-                     ORDER BY timestamp DESC LIMIT %s"""
-            cursor.execute(query, (request.email, request.numeroDati))
+            query = """SELECT AVG(valore) FROM data WHERE email = %s 
+                     AND ticker = (SELECT ticker FROM data WHERE email = %s ORDER BY timestamp DESC LIMIT 1) 
+                     ORDER BY timestamp DESC LIMIT %s"""    #query interna per selezionare solo entrate con lo stesso ticker
+            cursor.execute(query, (request.email, request.email, request.numeroDati))
             risultato = cursor.fetchone()
-            return finance_app_pb2.Valore(valore = risultato)
+            return finance_app_pb2.Valore(valore = risultato[0])
         except mysql.connector.Error as errore:
             print(f"Errore durante la richiesta: {errore}")
             return finance_app_pb2.Valore(valore = risultato)
         finally:
+            if cursor:
+                cursor.close()
             if connection.is_connected():
                 connection.close()
