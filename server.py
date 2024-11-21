@@ -1,8 +1,10 @@
+import hashlib
 import grpc
 from concurrent import futures
 import finance_app_pb2
 import finance_app_pb2_grpc
 import mysql.connector
+import re
 
 def connessione_db():
     try:
@@ -17,14 +19,41 @@ def connessione_db():
         print("Errore nella connessione al database.")
         return None
 
+def verifica_email(email):
+    regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+    return re.match(regex, email) is not None
+
 class ServizioUtente(finance_app_pb2_grpc.ServizioUtenteServicer):  #estensione
 
+    def genera_id_richiesta(self, request):
+        # Genera un ID univoco per la richiesta utilizzando un hash
+        hash = hashlib.sha256()
+        hash.update(f"{request.email}{request.ticker}".encode('utf-8'))
+        return hash.hexdigest()
+
     def registra_utente(self, request, context): #request è il messaggio ricevuto
+        if not verifica_email(request.email):
+            return finance_app_pb2.Conferma(conferma = False, messaggio = "Email non valida.")
+        
+        id_richiesta = self.genera_id_richiesta(request)
         try:
             connection = connessione_db()
             cursor = connection.cursor()
+            
+            # Verifica se la richiesta è già stata elaborata
+            verifica = "SELECT id FROM data WHERE id = %s"
+            cursor.execute(verifica, (id_richiesta,))
+            if cursor.fetchone():
+                return finance_app_pb2.Conferma(conferma = False, messaggio = "Richiesta già elaborata.")
+            
+            # Inserisce l'utente nella tabella utenti
             query = "INSERT INTO utenti (email, ticker) VALUES (%s, %s)"    #preveniamo SQL injection
             cursor.execute(query, (request.email, request.ticker))
+            
+            # Inserisci la richiesta nella tabella data ------------------
+            query_inserimento_data = "INSERT INTO data (id, email, ticker, valore, timestamp) VALUES (%s, %s, %s, %s, NOW())"
+            cursor.execute(query_inserimento_data, (id_richiesta, request.email, request.ticker, 'valore_placeholder'))
+            
             connection.commit()
             return finance_app_pb2.Conferma(conferma = True, messaggio = "Registrazione effettuata.")
         except mysql.connector.Error as errore:
@@ -37,11 +66,25 @@ class ServizioUtente(finance_app_pb2_grpc.ServizioUtenteServicer):  #estensione
                 connection.close()  #viene eseguito anche dopo un return preso
         
     def aggiorna_ticker(self, request, context):
+        id_richiesta = self.genera_id_richiesta(request)
         try:
             connection = connessione_db()
             cursor = connection.cursor()
+            
+            # Verifica se la richiesta è già stata elaborata
+            verifica = "SELECT id FROM data WHERE id = %s"
+            cursor.execute(verifica, (id_richiesta,))
+            if cursor.fetchone():
+                return finance_app_pb2.Conferma(conferma = False, messaggio = "Richiesta già elaborata.")
+            
+            # Aggiorna il ticker dell'utente nella tabella utenti
             query = "UPDATE utenti SET ticker = %s WHERE email = %s"
             cursor.execute(query, (request.ticker, request.email))
+            
+            # Inserisci la richiesta aggiornata nella tabella data --------------
+            query_inserimento_data = "INSERT INTO data (id, email, ticker, valore, timestamp) VALUES (%s, %s, %s, %s, NOW())"
+            cursor.execute(query_inserimento_data, (id_richiesta, request.email, request.ticker, 'valore_placeholder'))
+            
             connection.commit()
             return finance_app_pb2.Conferma(conferma = True, messaggio = "Aggiornamento effettuato.")
         except mysql.connector.Error as errore:
