@@ -72,7 +72,7 @@ def avvia_data_collector():
         try:
             righe = recupera_righe_utenti()
             for email, ticker in righe:
-                print("Recupero dati per {ticker} associato a {email}")
+                print(f"Recupero dati per {ticker} associato a {email}")
                 try:
                     ultimo_valore = circuit_breaker.call(recupera_ultimo_valore, ticker)  # Chiamata protetta dal CB
                     salva_stock_data(email, ticker, ultimo_valore)
@@ -83,8 +83,8 @@ def avvia_data_collector():
         except:
             print("Errore durante il recupero utenti")
 
-        time.sleep(600)  
-        print("Attendo 10 minuti prima del prossimo ciclo...")
+        print("Attendo un minuto prima del prossimo ciclo...")
+        time.sleep(60)
         
 if __name__ == "__main__":  #per avviare "data_collector.py"
     avvia_data_collector()
