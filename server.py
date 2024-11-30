@@ -20,38 +20,34 @@ def connessione_db():
         print("Errore nella connessione al database.")
         return None
 
-#Verifica che il formato sia valido
-def verifica_email(email):
+def formato_corretto(email):
     regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
-    return re.match(regex, email) is not None
+    return re.match(regex, email) is not None   #.match() ritorna Match o None
 
-#Hash per l'at-most-once
-def genera_id_richiesta(request, nome):
+def genera_id(request, nome):
     hash = hashlib.sha256()
     hash.update(f"{nome}{request.email}{request.ticker}".encode('utf-8'))
     return hash.hexdigest()
 
-#At-most-once
-cache = TTLCache(maxsize = 100, ttl = 30)   #time_to_live
+cache = TTLCache(maxsize = 100, ttl = 30)
 
 class ServizioUtente(finance_app_pb2_grpc.ServizioUtenteServicer):
 
     def RegistraUtente(request, context):
 
-        if not verifica_email(request.email):
+        if not formato_corretto(request.email):
             return finance_app_pb2.Conferma(conferma = False, messaggio = "Email non valida.")
         
-        #Implementazione at-most-once
-        id_richiesta = genera_id_richiesta(request, "registrazione")
-        if id_richiesta in cache:   #salvare anche la risposta?
-            return finance_app_pb2.Conferma(conferma = True, messaggio = "Registrazione già effettuata.")
+        id = genera_id(request, "registrazione")
+        if id in cache:
+            return finance_app_pb2.Conferma(conferma = True, messaggio = "Operazione già effettuata.")
         
         try:
             connection = connessione_db()
             cursor = connection.cursor()
-            query = "INSERT INTO utenti (email, ticker) VALUES (%s, %s)"    #preveniamo SQL injection usando %s
+            query = "INSERT INTO utenti (email, ticker) VALUES (%s, %s)"
             cursor.execute(query, (request.email, request.ticker))
-            cache[id_richiesta] = True  # TODO: salvare anche la risposta?
+            cache[id] = True
             connection.commit()
             return finance_app_pb2.Conferma(conferma = True, messaggio = "Registrazione effettuata.")
         except mysql.connector.Error as errore:
@@ -62,19 +58,19 @@ class ServizioUtente(finance_app_pb2_grpc.ServizioUtenteServicer):
                 cursor.close()
             if connection.is_connected():
                 connection.close()
-        
+
     def AggiornaTicker(request, context):
 
-        #Implementazione at-most-once
-        id_richiesta = genera_id_richiesta(request, "aggiornamento")
-        if id_richiesta in cache:
-            return finance_app_pb2.Conferma(conferma = True, messaggio = "Aggiornamento già effettuato.")
+        id = genera_id(request, "aggiornamento")
+        if id in cache:
+            return finance_app_pb2.Conferma(conferma = True, messaggio = "Operazione già effettuata.")
+        
         try:
             connection = connessione_db()
             cursor = connection.cursor()
             query = "UPDATE utenti SET ticker = %s WHERE email = %s"
             cursor.execute(query, (request.ticker, request.email))
-            cache[id_richiesta] = True  # TODO: salvare anche la risposta?
+            cache[id] = True
             connection.commit()
             return finance_app_pb2.Conferma(conferma = True, messaggio = "Aggiornamento effettuato.")
         except mysql.connector.Error as errore:
@@ -108,13 +104,12 @@ class ServizioUtente(finance_app_pb2_grpc.ServizioUtenteServicer):
 class ServizioStock(finance_app_pb2_grpc.ServizioStockServicer):
 
     def RecuperaValore(request, context):
-        print(f"Recupero l'ultimo valore del ticker associato all'utente {request.email}")
         try:
             connection = connessione_db()
             cursor = connection.cursor()
             query = "SELECT valore FROM data WHERE email = %s ORDER BY timestamp DESC LIMIT 1"
             cursor.execute(query, (request.email,))
-            risultato = cursor.fetchone()   #torna una tupla
+            risultato = cursor.fetchone()
             print(f"Valore ottenuto: {risultato[0]}")
             return finance_app_pb2.Valore(valore = risultato[0])
         except mysql.connector.Error as errore:
@@ -125,16 +120,15 @@ class ServizioStock(finance_app_pb2_grpc.ServizioStockServicer):
                 cursor.close()
             if connection.is_connected():
                 connection.close()
-        
 
     def CalcolaMediaValori(request, context):
-        print(f"Calcolo la media degli ultimi {request.numeroDati} valori del ticker associato all'utente {request.email}")
         try:
             connection = connessione_db()
             cursor = connection.cursor()
-            query = """SELECT AVG(valore) FROM data WHERE email = %s 
-                     AND ticker = (SELECT ticker FROM data WHERE email = %s ORDER BY timestamp DESC LIMIT 1) 
-                     ORDER BY timestamp DESC LIMIT %s"""    #query interna per selezionare solo entrate con lo stesso ticker
+            query = """SELECT AVG(valore) FROM data WHERE email = %s AND ticker = 
+                     (SELECT ticker FROM data WHERE email = %s ORDER BY timestamp DESC LIMIT 1) 
+                     ORDER BY timestamp DESC LIMIT %s"""    #La seconda riga della query è usata per selezionare solo le entrate dell'utente con l'ultimo ticker 
+            #TODO: Se elimino le entrate in data quando aggiorno il ticker, non ho bisogno della query interna
             cursor.execute(query, (request.email, request.email, request.numeroDati))
             risultato = cursor.fetchone()
             print(f"Valore ottenuto: {round(risultato[0], 2)}")
@@ -156,8 +150,8 @@ def serve():
     print("Servizio Utente avviato.")
     print("Servizio Stock avviato.")
     print(f"Server in ascolto sulla porta {port}...")
-    server.add_insecure_port('[::]:' + port)    #qualsiasi indirizzo di rete sulla porta
-    server.start()  #asincrono (non blocca l'esecuzione del programma )
+    server.add_insecure_port('[::]:' + port)
+    server.start()
     server.wait_for_termination()
     
 if __name__ == '__main__':
