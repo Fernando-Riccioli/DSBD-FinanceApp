@@ -1,0 +1,64 @@
+version: '3'
+
+services:
+  mysqldb:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: unictlm32
+      MYSQL_DATABASE: finance_app
+      MYSQL_USER: utente
+      MYSQL_PASSWORD: dsbigdata
+    volumes:
+      - ./mysql_volume:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - 3306:3306
+
+  server:
+    build:
+      context: .
+      dockerfile: dockerfile-server
+    environment:
+      - MYSQL_HOST=mysqldb
+      - MYSQL_PORT=3306
+      - MYSQL_ROOT_PASSWORD=unictlm32
+      - MYSQL_DATABASE=finance_app
+      - MYSQL_USER=utente
+      - MYSQL_PASSWORD=dsbigdata
+    ports:
+      - "50052:50051"
+    depends_on:
+      - mysqldb
+    restart: always
+
+  datacollector:
+    build:
+      context: .
+      dockerfile: dockerfile-datacollector
+    environment:
+      - MYSQL_HOST=mysqldb
+      - MYSQL_PORT=3306
+      - MYSQL_ROOT_PASSWORD=unictlm32
+      - MYSQL_DATABASE=finance_app
+      - MYSQL_USER=utente
+      - MYSQL_PASSWORD=dsbigdata
+    depends_on:
+      - mysqldb
+      - server
+
+  client:
+    build:
+      context: .
+      dockerfile: dockerfile-client
+    stdin_open: true
+    tty: true
+    command: 
+      - bash
+    depends_on:
+      - mysqldb
+      - server
+    
+
+volumes:
+  db_data:
+  
