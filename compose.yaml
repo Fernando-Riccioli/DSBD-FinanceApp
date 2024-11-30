@@ -1,63 +1,46 @@
-version: '3'
-
 services:
   mysqldb:
     image: mysql:8.0
+    container_name: database
     environment:
-      MYSQL_ROOT_PASSWORD: unictlm32
+      MYSQL_ROOT_PASSWORD: 1234
       MYSQL_DATABASE: finance_app
-      MYSQL_USER: utente
-      MYSQL_PASSWORD: dsbigdata
+      MYSQL_USER: server
+      MYSQL_PASSWORD: 1234
     volumes:
-      - ./mysql_volume:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - db-data:var/lib/mysql #volume condiviso
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql #script di inizializzazione
     ports:
-      - 3306:3306
+      - 3306:3306 #porta host:porta container
 
   server:
     build:
-      context: .
-      dockerfile: dockerfile-server
+      dockerfile: Dockerfile.server
     environment:
       - MYSQL_HOST=mysqldb
       - MYSQL_PORT=3306
-      - MYSQL_ROOT_PASSWORD=unictlm32
+      - MYSQL_ROOT_PASSWORD=1234
       - MYSQL_DATABASE=finance_app
-      - MYSQL_USER=utente
-      - MYSQL_PASSWORD=dsbigdata
+      - MYSQL_USER=server
+      - MYSQL_PASSWORD=1234
     ports:
-      - "50052:50051"
+      - "50051:50051"
     depends_on:
       - mysqldb
     restart: always
 
   datacollector:
     build:
-      context: .
-      dockerfile: dockerfile-datacollector
+      dockerfile: Dockerfile.datacollector
     environment:
       - MYSQL_HOST=mysqldb
       - MYSQL_PORT=3306
-      - MYSQL_ROOT_PASSWORD=unictlm32
+      - MYSQL_ROOT_PASSWORD=1234
       - MYSQL_DATABASE=finance_app
-      - MYSQL_USER=utente
-      - MYSQL_PASSWORD=dsbigdata
+      - MYSQL_USER=server
+      - MYSQL_PASSWORD=1234
     depends_on:
       - mysqldb
-      - server
-
-  client:
-    build:
-      context: .
-      dockerfile: dockerfile-client
-    stdin_open: true
-    tty: true
-    command: 
-      - bash
-    depends_on:
-      - mysqldb
-      - server
-    
 
 volumes:
   db_data:
