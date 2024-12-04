@@ -8,10 +8,10 @@ services:
       MYSQL_USER: server
       MYSQL_PASSWORD: 1234
     volumes:
-      - db-data:var/lib/mysql #volume condiviso
+      - db-data:/var/lib/mysql #volume condiviso
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql #script di inizializzazione
     ports:
-      - 3306:3306 #porta host:porta container
+      - 3307:3306 #porta host:porta container
 
   server:
     build:
@@ -31,7 +31,7 @@ services:
 
   datacollector:
     build:
-      dockerfile: Dockerfile.datacollector
+      dockerfile: Dockerfile.data_collector
     environment:
       - MYSQL_HOST=mysqldb
       - MYSQL_PORT=3306
@@ -43,5 +43,5 @@ services:
       - mysqldb
 
 volumes:
-  db_data:
+  db-data:
   

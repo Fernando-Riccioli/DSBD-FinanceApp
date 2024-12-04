@@ -9,7 +9,7 @@ circuit_breaker = CircuitBreaker()  #argomenti personalizzati
 def connessione_db():
     try:
         connection = mysql.connector.connect(
-            host = 'localhost',
+            host = 'mysqldb',
             user = 'server',
             password = '1234',
             database = 'finance_app'
