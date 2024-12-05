@@ -1,10 +1,9 @@
 CREATE TABLE utenti (
-    email VARCHAR(100) NOT NULL UNIQUE PRIMARY KEY,
+    email VARCHAR(100) NOT NULL PRIMARY KEY,
     ticker VARCHAR(5) NOT NULL
 );
 
 CREATE TABLE data (
-    id VARCHAR(64) PRIMARY KEY,
     email VARCHAR(100) NOT NULL,
     ticker VARCHAR(5) NOT NULL,
     valore FLOAT(10),

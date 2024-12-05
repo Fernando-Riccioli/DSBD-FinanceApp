@@ -81,7 +81,7 @@ def avvia_data_collector():
                 except Exception as e:
                     print(f"Errore per {ticker} (utente: {email}): {e}")
         except:
-            print("Errore durante il recupero utenti")
+            print("Errore durante il recupero degli utenti nel database.")
 
         print("Attendo un minuto prima del prossimo ciclo...")
         time.sleep(60)
