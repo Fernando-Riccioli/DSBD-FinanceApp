@@ -9,7 +9,7 @@ circuit_breaker = CircuitBreaker()  #argomenti personalizzati
 def connessione_db():
     try:
         connection = mysql.connector.connect(
-            host = 'mysqldb',
+            host = 'localhost', #TODO: mysqldb quando spostiamo su docker, localhost in locale
             user = 'server',
             password = '1234',
             database = 'finance_app'

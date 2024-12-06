@@ -3,20 +3,41 @@ import grpc
 import finance_app_pb2
 import finance_app_pb2_grpc
 
+def ottieni_soglia():
+    print("Inserisci i valori di soglia per la notifica: lasciare vuoto per non impostare la soglia.")
+
+    high_value = input("Valore massimo: ")
+    try:
+        high_value = float(high_value)
+    except ValueError:
+        print("Soglia non impostata.")
+        high_value = 0.0
+
+    low_value = input("Valore minimo: ")
+    try:
+        low_value = float(low_value)
+    except ValueError:
+        print("Soglia non impostata.")
+        low_value = 0.0
+
+    return high_value, low_value
+
 def registra_utente(stub):
     try:
         email = input("Inserisci email: ")
         ticker = input("Inserisci ticker: ")
-        risposta = stub.RegistraUtente(finance_app_pb2.DatiUtente(email = email, ticker = ticker), timeout = 5)
+        high_value, low_value = ottieni_soglia()
+        risposta = stub.RegistraUtente(finance_app_pb2.DatiUtente(email = email, ticker = ticker, high_value = high_value, low_value = low_value), timeout = 5)
         print("Conferma registrazione: " + str(risposta.conferma) + ". " + risposta.messaggio)
     except grpc.RpcError as error:
         print(error)
 
-def aggiorna_ticker(stub):
+def aggiorna_utente(stub):
     try:
         email = input("Inserisci email: ")
         ticker = input("Inserisci ticker: ")
-        risposta = stub.AggiornaTicker(finance_app_pb2.DatiUtente(email = email, ticker = ticker), timeout = 5)
+        high_value, low_value = ottieni_soglia()
+        risposta = stub.AggiornaUtente(finance_app_pb2.DatiUtente(email = email, ticker = ticker, high_value = high_value, low_value = low_value), timeout = 5)
         print("Conferma aggiornamento: " + str(risposta.conferma) + ". " + risposta.messaggio)
     except grpc.RpcError as error:
         print(error)
@@ -68,7 +89,7 @@ def run():
             if scelta == '1':
                 registra_utente(stub_utente)
             elif scelta == '2':
-                aggiorna_ticker(stub_utente)
+                aggiorna_utente(stub_utente)
             elif scelta == '3':
                 cancella_utente(stub_utente)
             elif scelta == '4':

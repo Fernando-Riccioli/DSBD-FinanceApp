@@ -3,7 +3,7 @@ syntax = "proto3";
 
 service ServizioUtente{
     rpc RegistraUtente (DatiUtente) returns (Conferma) {}
-    rpc AggiornaTicker (DatiUtente) returns (Conferma) {}
+    rpc AggiornaUtente (DatiUtente) returns (Conferma) {}
     rpc CancellaUtente (Email) returns (Conferma) {}
 }
 
@@ -15,6 +15,8 @@ service ServizioStock{
 message DatiUtente{
     string email = 1;
     string ticker = 2;
+    float high_value = 3;
+    float low_value = 4;
 }
 
 message Email{

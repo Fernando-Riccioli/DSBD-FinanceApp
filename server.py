@@ -10,7 +10,7 @@ from concurrent import futures
 def connessione_db():
     try:
         connection = mysql.connector.connect(
-            host = 'mysqldb',
+            host = 'localhost',   #TODO: mysqldb quando siamo su docker, localhost in locale
             user = 'server',
             password = '1234',
             database = 'finance_app'
@@ -42,11 +42,26 @@ class ServizioUtente(finance_app_pb2_grpc.ServizioUtenteServicer):
         if id in cache:
             return finance_app_pb2.Conferma(conferma = True, messaggio = "Operazione già effettuata.")
         
+        #Conversione a NULL se 0.0       
+        if not request.high_value:
+            high_value = None
+        else:
+            high_value = request.high_value
+
+        if not request.low_value:
+            low_value = None
+        else:
+            low_value = request.low_value
+
+        # Se entrambe le soglie sono impostate e la soglia massima è minore allora errore
+        if high_value and low_value and high_value <= low_value:
+            return finance_app_pb2.Conferma(conferma = False, messaggio = "Errore: La soglia massima deve essere maggiore della soglia minima.")
+
         try:
             connection = connessione_db()
             cursor = connection.cursor()
-            query = "INSERT INTO utenti (email, ticker) VALUES (%s, %s)"
-            cursor.execute(query, (request.email, request.ticker))
+            query = "INSERT INTO utenti (email, ticker, high_value, low_value) VALUES (%s, %s, %s, %s)"
+            cursor.execute(query, (request.email, request.ticker, high_value, low_value))
             cache[id] = True
             connection.commit()
             return finance_app_pb2.Conferma(conferma = True, messaggio = "Registrazione effettuata.")
@@ -59,17 +74,32 @@ class ServizioUtente(finance_app_pb2_grpc.ServizioUtenteServicer):
             if connection.is_connected():
                 connection.close()
 
-    def AggiornaTicker(request, context):
+    def AggiornaUtente(request, context):
 
         id = genera_id(request, "aggiornamento")
         if id in cache:
             return finance_app_pb2.Conferma(conferma = True, messaggio = "Operazione già effettuata.")
         
+        #Conversione a NULL se 0.0       
+        if not request.high_value:
+            high_value = None
+        else:
+            high_value = request.high_value
+
+        if not request.low_value:
+            low_value = None
+        else:
+            low_value = request.low_value
+
+        # Se entrambe le soglie sono impostate e la soglia massima è minore allora errore
+        if high_value and low_value and high_value <= low_value:
+            return finance_app_pb2.Conferma(conferma = False, messaggio = "Errore: La soglia massima deve essere maggiore della soglia minima.")
+
         try:
             connection = connessione_db()
             cursor = connection.cursor()
-            query = "UPDATE utenti SET ticker = %s WHERE email = %s"
-            cursor.execute(query, (request.ticker, request.email))
+            query = "UPDATE utenti SET ticker = %s, high_value = %s, low_value = %s WHERE email = %s"
+            cursor.execute(query, (request.ticker, high_value, low_value, request.email))
             cache[id] = True
             connection.commit()
             return finance_app_pb2.Conferma(conferma = True, messaggio = "Aggiornamento effettuato.")

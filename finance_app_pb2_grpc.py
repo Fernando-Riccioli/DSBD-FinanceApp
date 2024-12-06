@@ -5,7 +5,7 @@ import warnings
 
 import finance_app_pb2 as finance__app__pb2
 
-GRPC_GENERATED_VERSION = '1.67.1'
+GRPC_GENERATED_VERSION = '1.68.0'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -39,8 +39,8 @@ class ServizioUtenteStub(object):
                 request_serializer=finance__app__pb2.DatiUtente.SerializeToString,
                 response_deserializer=finance__app__pb2.Conferma.FromString,
                 _registered_method=True)
-        self.AggiornaTicker = channel.unary_unary(
-                '/ServizioUtente/AggiornaTicker',
+        self.AggiornaUtente = channel.unary_unary(
+                '/ServizioUtente/AggiornaUtente',
                 request_serializer=finance__app__pb2.DatiUtente.SerializeToString,
                 response_deserializer=finance__app__pb2.Conferma.FromString,
                 _registered_method=True)
@@ -60,7 +60,7 @@ class ServizioUtenteServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def AggiornaTicker(self, request, context):
+    def AggiornaUtente(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -80,8 +80,8 @@ def add_ServizioUtenteServicer_to_server(servicer, server):
                     request_deserializer=finance__app__pb2.DatiUtente.FromString,
                     response_serializer=finance__app__pb2.Conferma.SerializeToString,
             ),
-            'AggiornaTicker': grpc.unary_unary_rpc_method_handler(
-                    servicer.AggiornaTicker,
+            'AggiornaUtente': grpc.unary_unary_rpc_method_handler(
+                    servicer.AggiornaUtente,
                     request_deserializer=finance__app__pb2.DatiUtente.FromString,
                     response_serializer=finance__app__pb2.Conferma.SerializeToString,
             ),
@@ -129,7 +129,7 @@ class ServizioUtente(object):
             _registered_method=True)
 
     @staticmethod
-    def AggiornaTicker(request,
+    def AggiornaUtente(request,
             target,
             options=(),
             channel_credentials=None,
@@ -142,7 +142,7 @@ class ServizioUtente(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/ServizioUtente/AggiornaTicker',
+            '/ServizioUtente/AggiornaUtente',
             finance__app__pb2.DatiUtente.SerializeToString,
             finance__app__pb2.Conferma.FromString,
             options,
