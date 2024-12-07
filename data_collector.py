@@ -85,6 +85,8 @@ def avvia_data_collector():
 
         print("Attendo un minuto prima del prossimo ciclo...")
         time.sleep(60)
+
+#TODO: Data Collector diventa un producer ch pubblica sul topic 'to-alert-system'
         
 if __name__ == "__main__":  #per avviare "data_collector.py"
     avvia_data_collector()
