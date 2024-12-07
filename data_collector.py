@@ -1,10 +1,21 @@
 import time
 import mysql.connector
+from confluent_kafka import Producer
 import yfinance as yf
 
 from circuit_breaker import CircuitBreaker, CircuitBreakerOpenException
                 
 circuit_breaker = CircuitBreaker()  #argomenti personalizzati
+
+producer_config = {
+    'bootstrap.servers': 'localhost:29092',
+    'acks': 'all',
+    'batch.size': 500,  # un batch è una collezione di messaggi. batch size dice quanti byte può essere un batch
+    'max.in.flight.requests.per.connection': 1,
+    'retries': 3
+}
+producer = Producer(producer_config)
+topic = 'to-alert-system'
 
 def connessione_db():
     try:
@@ -66,7 +77,14 @@ def salva_stock_data(email, ticker, valore):
             cursor.close()
         if connection.is_connected():
                 connection.close()
-                
+
+def delivery_report(err, msg):
+    """Callback to report the result of message delivery."""
+    if err:
+        print(f"Delivery failed: {err}")
+    else:
+        print(f"Message delivered to {msg.topic()} [{msg.partition()}] at offset {msg.offset()}")
+
 def avvia_data_collector():
     while True:
         try:
@@ -76,6 +94,10 @@ def avvia_data_collector():
                 try:
                     ultimo_valore = circuit_breaker.call(recupera_ultimo_valore, ticker)  # Chiamata protetta dal CB
                     salva_stock_data(email, ticker, ultimo_valore)
+                    message = "Database aggiornato."
+                    producer.produce(topic, message, callback = delivery_report)
+                    producer.flush()
+                    print(f"Produced {message}")
                 except CircuitBreakerOpenException:
                     print("Errore: il circuito è aperto.")
                 except Exception as e:

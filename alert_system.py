@@ -2,9 +2,6 @@ import mysql.connector
 import json
 from confluent_kafka import Consumer, Producer
 
-#TODO: Controllare che l'implementazione di consumer e producer sia corretta
-#      e che la logica all'interno di controlla_soglia() sia corretta 
-
 consumer_config = {
     'bootstrap.servers': 'localhost:29092',
     'group.id': 'group2',
@@ -16,7 +13,7 @@ producer_config = {'bootstrap.servers': 'localhost:29092'}
 consumer = Consumer(consumer_config)
 producer = Producer(producer_config)
 topic_consumer = 'to-alert-system'
-topic_prodcuer = 'to-notifier'
+topic_producer = 'to-notifier'
 consumer.subscribe([topic_consumer])
 
 def connessione_db():
@@ -31,7 +28,8 @@ def connessione_db():
     except mysql.connector.Error:
         print("Errore nella connessione al database.")
         return None
-    
+
+#TODO: Controllare che la logica all'interno di soglia_superata() sia corretta 
 def soglia_superata():
     try:
         connection = connessione_db()
