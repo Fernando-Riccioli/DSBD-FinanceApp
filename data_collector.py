@@ -8,7 +8,7 @@ from circuit_breaker import CircuitBreaker, CircuitBreakerOpenException
 circuit_breaker = CircuitBreaker()  #argomenti personalizzati
 
 producer_config = {
-    'bootstrap.servers': 'localhost:29092',
+    'bootstrap.servers': 'localhost:19092,localhost:29092,localhost:39092', # Lista dei brokers
     'acks': 'all',
     'batch.size': 500,  # un batch è una collezione di messaggi. batch size dice quanti byte può essere un batch
     'max.in.flight.requests.per.connection': 1,

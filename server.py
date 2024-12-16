@@ -54,7 +54,7 @@ class ServizioUtente(finance_app_pb2_grpc.ServizioUtenteServicer):
             low_value = request.low_value
 
         # Se entrambe le soglie sono impostate e la soglia massima è minore allora errore
-        if high_value and low_value and high_value <= low_value:
+        if high_value is not None and low_value is not None and high_value <= low_value:
             return finance_app_pb2.Conferma(conferma = False, messaggio = "Errore: La soglia massima deve essere maggiore della soglia minima.")
 
         try:
@@ -92,7 +92,7 @@ class ServizioUtente(finance_app_pb2_grpc.ServizioUtenteServicer):
             low_value = request.low_value
 
         # Se entrambe le soglie sono impostate e la soglia massima è minore allora errore
-        if high_value and low_value and high_value <= low_value:
+        if high_value is not None and low_value is not None and high_value <= low_value:
             return finance_app_pb2.Conferma(conferma = False, messaggio = "Errore: La soglia massima deve essere maggiore della soglia minima.")
 
         try:
@@ -116,6 +116,7 @@ class ServizioUtente(finance_app_pb2_grpc.ServizioUtenteServicer):
         try:
             connection = connessione_db()
             cursor = connection.cursor()
+            
             query = "DELETE FROM utenti WHERE email = %s"
             cursor.execute(query, (request.email,)) #execute vuole la tupla
             query = "DELETE FROM data WHERE email = %s"

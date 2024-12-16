@@ -3,18 +3,18 @@ import json
 from confluent_kafka import Consumer, Producer
 
 consumer_config = {
-    'bootstrap.servers': 'localhost:29092',
+    'bootstrap.servers': 'localhost:19092,localhost:29092,localhost:39092', #Lista dei broker
     'group.id': 'group2',
     'auto.offset.reset': 'earliest',
     'enable.auto.commit': True,
 }
-producer_config = {'bootstrap.servers': 'localhost:29092'}
+producer_config = {'bootstrap.servers': 'localhost:19092,localhost:29092,localhost:39092'}
 
-consumer = Consumer(consumer_config)
+consumer = Consumer(consumer_config) #Creazione del Consumer utilizzando la configurazione consumer_config
 producer = Producer(producer_config)
 topic_consumer = 'to-alert-system'
 topic_producer = 'to-notifier'
-consumer.subscribe([topic_consumer])
+consumer.subscribe([topic_consumer]) #Sottoscrizione del Consumer al topic consumer
 
 def connessione_db():
     try:
