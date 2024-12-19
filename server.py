@@ -10,7 +10,7 @@ from concurrent import futures
 def connessione_db():
     try:
         connection = mysql.connector.connect(
-            host = 'localhost',   #TODO: mysqldb quando siamo su docker, localhost in locale
+            host = 'mysqldb',   #TODO: mysqldb quando siamo su docker, localhost in locale
             user = 'server',
             password = '1234',
             database = 'finance_app'

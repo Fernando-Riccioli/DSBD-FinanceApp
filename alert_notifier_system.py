@@ -4,7 +4,7 @@ from confluent_kafka import Consumer
 from email.message import EmailMessage
 
 consumer_config = {
-    'bootstrap.servers': 'localhost:19092,localhost:29092,localhost:39092',
+    'bootstrap.servers': 'kafka-broker-1:19092,kafka-broker-2:20902,kafka-broker-3:39092',
     'group.id': 'group1',  #gruppo di competing consumers
     'auto.offset.reset': 'earliest',
     'enable.auto.commit': True

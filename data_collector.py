@@ -8,7 +8,7 @@ from circuit_breaker import CircuitBreaker, CircuitBreakerOpenException
 circuit_breaker = CircuitBreaker()  #argomenti personalizzati
 
 producer_config = {
-    'bootstrap.servers': 'localhost:19092,localhost:29092,localhost:39092', # Lista dei brokers
+    'bootstrap.servers': 'kafka-broker-1:19092,kafka-broker-2:20902,kafka-broker-3:39092', # Lista dei brokers
     'acks': 'all',
     'batch.size': 500,  # un batch è una collezione di messaggi. batch size dice quanti byte può essere un batch
     'max.in.flight.requests.per.connection': 1,
@@ -20,7 +20,7 @@ topic = 'to-alert-system'
 def connessione_db():
     try:
         connection = mysql.connector.connect(
-            host = 'localhost', #TODO: mysqldb quando spostiamo su docker, localhost in locale
+            host = 'mysqldb', #TODO: mysqldb quando spostiamo su docker, localhost in locale
             user = 'server',
             password = '1234',
             database = 'finance_app'
@@ -107,8 +107,6 @@ def avvia_data_collector():
 
         print("Attendo un minuto prima del prossimo ciclo...")
         time.sleep(60)
-
-#TODO: Data Collector diventa un producer ch pubblica sul topic 'to-alert-system'
         
 if __name__ == "__main__":  #per avviare "data_collector.py"
     avvia_data_collector()

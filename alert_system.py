@@ -3,12 +3,12 @@ import json
 from confluent_kafka import Consumer, Producer
 
 consumer_config = {
-    'bootstrap.servers': 'localhost:19092,localhost:29092,localhost:39092', #Lista dei broker
+    'bootstrap.servers': 'kafka-broker-1:19092,kafka-broker-2:20902,kafka-broker-3:39092', #Lista dei broker
     'group.id': 'group2',
     'auto.offset.reset': 'earliest',
     'enable.auto.commit': True,
 }
-producer_config = {'bootstrap.servers': 'localhost:19092,localhost:29092,localhost:39092'}
+producer_config = {'bootstrap.servers': 'kafka-broker-1:19092,kafka-broker-2:20902,kafka-broker-3:39092'}
 
 consumer = Consumer(consumer_config) #Creazione del Consumer utilizzando la configurazione consumer_config
 producer = Producer(producer_config)
