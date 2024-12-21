@@ -12,8 +12,6 @@ consumer_config = {
 
 consumer = Consumer(consumer_config)
 topic = 'to-notifier'
-
-#Sottoscrizione al topic
 consumer.subscribe([topic])
 
 def manda_email(ticker, email, condizione):

@@ -5,10 +5,10 @@ import yfinance as yf
 
 from circuit_breaker import CircuitBreaker, CircuitBreakerOpenException
                 
-circuit_breaker = CircuitBreaker()  #argomenti personalizzati
+circuit_breaker = CircuitBreaker()
 
 producer_config = {
-    'bootstrap.servers': 'kafka-broker:9092', # Lista dei brokers
+    'bootstrap.servers': 'kafka-broker:9092',
     'acks': 'all',
     'batch.size': 500,  # un batch è una collezione di messaggi. batch size dice quanti byte può essere un batch
     'max.in.flight.requests.per.connection': 1,

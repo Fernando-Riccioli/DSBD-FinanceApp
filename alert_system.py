@@ -3,18 +3,18 @@ import json
 from confluent_kafka import Consumer, Producer
 
 consumer_config = {
-    'bootstrap.servers': 'kafka-broker:9092', #Lista dei broker
+    'bootstrap.servers': 'kafka-broker:9092',
     'group.id': 'group2',
     'auto.offset.reset': 'earliest',
     'enable.auto.commit': True,
 }
 producer_config = {'bootstrap.servers': 'kafka-broker:9092'}
 
-consumer = Consumer(consumer_config) #Creazione del Consumer utilizzando la configurazione consumer_config
+consumer = Consumer(consumer_config)
 producer = Producer(producer_config)
 topic_consumer = 'to-alert-system'
 topic_producer = 'to-notifier'
-consumer.subscribe([topic_consumer]) #Sottoscrizione del Consumer al topic consumer
+consumer.subscribe([topic_consumer])
 
 def connessione_db():
     try:
@@ -29,7 +29,6 @@ def connessione_db():
         print("Errore nella connessione al database.")
         return None
 
-#TODO: Controllare che la logica all'interno di soglia_superata() sia corretta 
 def soglia_superata():
     try:
         connection = connessione_db()
@@ -46,10 +45,10 @@ def soglia_superata():
             elif low_value and valore[0][0] <= low_value:
                 return (email, ticker, "Soglia inferiore raggiunta")
             else:
-                return ("", "", "") #TODO: Da testare
+                return ("", "", "")
     except mysql.connector.Error as errore:
         print(f"Errore durante il recupero dal database: {errore}")
-        return ("", "", "") #Da testare
+        return ("", "", "")
     finally:
         if cursor:
             cursor.close()
