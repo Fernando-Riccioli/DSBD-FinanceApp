@@ -8,7 +8,7 @@ from circuit_breaker import CircuitBreaker, CircuitBreakerOpenException
 circuit_breaker = CircuitBreaker()  #argomenti personalizzati
 
 producer_config = {
-    'bootstrap.servers': 'kafka-broker-1:19092,kafka-broker-2:20902,kafka-broker-3:39092', # Lista dei brokers
+    'bootstrap.servers': 'kafka-broker:9092', # Lista dei brokers
     'acks': 'all',
     'batch.size': 500,  # un batch è una collezione di messaggi. batch size dice quanti byte può essere un batch
     'max.in.flight.requests.per.connection': 1,

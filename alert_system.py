@@ -3,12 +3,12 @@ import json
 from confluent_kafka import Consumer, Producer
 
 consumer_config = {
-    'bootstrap.servers': 'kafka-broker-1:19092,kafka-broker-2:20902,kafka-broker-3:39092', #Lista dei broker
+    'bootstrap.servers': 'kafka-broker:9092', #Lista dei broker
     'group.id': 'group2',
     'auto.offset.reset': 'earliest',
     'enable.auto.commit': True,
 }
-producer_config = {'bootstrap.servers': 'kafka-broker-1:19092,kafka-broker-2:20902,kafka-broker-3:39092'}
+producer_config = {'bootstrap.servers': 'kafka-broker:9092'}
 
 consumer = Consumer(consumer_config) #Creazione del Consumer utilizzando la configurazione consumer_config
 producer = Producer(producer_config)
@@ -19,7 +19,7 @@ consumer.subscribe([topic_consumer]) #Sottoscrizione del Consumer al topic consu
 def connessione_db():
     try:
         connection = mysql.connector.connect(
-            host = 'localhost', #TODO: mysqldb quando spostiamo su docker, localhost in locale
+            host = 'mysqldb', #TODO: mysqldb quando spostiamo su docker, localhost in locale
             user = 'server',
             password = '1234',
             database = 'finance_app'
@@ -34,16 +34,16 @@ def soglia_superata():
     try:
         connection = connessione_db()
         cursor = connection.cursor()
-        query = "SELECT email, high_value, low_value FROM utenti"
+        query = "SELECT email, ticker, high_value, low_value FROM utenti"
         cursor.execute(query)
         righe = cursor.fetchall()
         for email, ticker, high_value, low_value in righe:
             query = "SELECT valore FROM data WHERE email = %s ORDER BY timestamp DESC LIMIT 1"
-            cursor.execute(query, (email))
+            cursor.execute(query, (email,))
             valore = cursor.fetchall()
-            if high_value and valore[0] >= high_value:  #Funziona con NULL?
+            if high_value and valore[0][0] >= high_value:
                 return (email, ticker, "Soglia superiore raggiunta")
-            elif low_value and valore[0] <= low_value:
+            elif low_value and valore[0][0] <= low_value:
                 return (email, ticker, "Soglia inferiore raggiunta")
             else:
                 return ("", "", "") #TODO: Da testare

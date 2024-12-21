@@ -70,7 +70,7 @@ def calcola_media_valori(stub):
 def visualizza_menu():
     print("\nScegli un'opzione:")
     print("1. Registra utente")
-    print("2. Aggiorna ticker")
+    print("2. Aggiorna utente")
     print("3. Cancella utente")
     print("4. Recupera valore")
     print("5. Recupera media valori")
