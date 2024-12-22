@@ -1,34 +1,48 @@
 import grpc
-from command_service import ServizioComandoUtente
+from command_service import CommandService
 import finance_app_pb2_grpc
 from concurrent import futures
-from query_service import ServizioQueryStock
+from query_service import QueryService
+
+class ComandoRegistraUtente:
+    def __init__(self, email, ticker, high_value, low_value):
+        self.email = email
+        self.ticker = ticker
+        self.high_value = high_value
+        self.low_value = low_value
+
+class ComandoAggiornaUtente:
+    def __init__(self, email, ticker, high_value, low_value):
+        self.email = email
+        self.ticker = ticker
+        self.high_value = high_value
+        self.low_value = low_value
+
+class ComandoCancellaUtente:
+    def __init__(self, email):
+        self.email = email
 
 class ServizioUtente(finance_app_pb2_grpc.ServizioUtenteServicer):
 
-    def __init__(self):
-        self.command_service = ServizioComandoUtente()
+    def RegistraUtente(request, context):
+        comando = ComandoRegistraUtente(request.email, request.ticker, request.high_value, request.low_value)
+        return CommandService.handle_registrazione_utente(comando)
 
-    def RegistraUtente(self, request, context):
-        return self.command_service.RegistraUtente(request)
-
-    def AggiornaUtente(self, request, context):
-        return self.command_service.AggiornaUtente(request)
+    def AggiornaUtente(request, context):
+        comando = ComandoAggiornaUtente(request.email, request.ticker, request.high_value, request.low_value)
+        return CommandService.handle_aggiornamento_utente(comando)
     
-    def CancellaUtente(self, request, context):
-        return self.command_service.CancellaUtente(request)   
+    def CancellaUtente(request, context):
+        comando = ComandoCancellaUtente(request.email)
+        return CommandService.handle_cancellazione_utente(comando)   
 
 class ServizioStock(finance_app_pb2_grpc.ServizioStockServicer):
 
-    def __init__(self):
-        self.query_service = ServizioQueryStock()
+    def RecuperaValore(request, context):
+        return QueryService.get_ultimo_valore(request)
 
-    def RecuperaValore(self, request, context):
-        return self.query_service.RecuperaValore(request.email)
-
-    def CalcolaMediaValori(self, request, context):
-        return self.query_service.CalcolaMediaValori(request.email)
-
+    def CalcolaMediaValori(request, context):
+        return QueryService.get_media_valori(request)
 
 def serve():
     port = '50051'

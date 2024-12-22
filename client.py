@@ -62,6 +62,11 @@ def calcola_media_valori(stub):
     try:
         email = input("Inserisci email: ")
         numeroDati = input("Inserisci il numero di dati: ")
+        try:
+            numeroDati = int(numeroDati)
+        except ValueError:
+            print("Valore non valido.")
+            numeroDati = 1
         risposta = stub.CalcolaMediaValori(finance_app_pb2.DatiMediaValori(email = email, numeroDati = numeroDati), timeout = 5)
         print(f"Media valori ottenuta: {round(risposta.valore, 2)}")
     except grpc.RpcError as error:

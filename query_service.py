@@ -4,7 +4,7 @@ import finance_app_pb2
 def connessione_db():
     try:
         connection = mysql.connector.connect(
-            host='mysqldb',
+            host='mysqldb',     #TODO: mysqldb quando siamo su docker, localhost in locale
             user='server',
             password='1234',
             database='finance_app'
@@ -14,17 +14,21 @@ def connessione_db():
         print("Errore nella connessione al database.")
         return None
         
-class ServizioQueryStock:
+class QueryService:
     
-    def RecuperaValore(request, context):
+    def get_ultimo_valore(request):
         try:
             connection = connessione_db()
             cursor = connection.cursor()
             query = "SELECT valore FROM data WHERE email = %s ORDER BY timestamp DESC LIMIT 1"
             cursor.execute(query, (request.email,))
             risultato = cursor.fetchone()
-            print(f"Valore ottenuto: {risultato[0]}")
-            return finance_app_pb2.Valore(valore = risultato[0])
+            if risultato:       #TODO: controlla la logica
+                print(f"Valore ottenuto: {risultato[0]}")
+                return finance_app_pb2.Valore(valore=risultato[0])
+            else:
+                print("Nessun valore trovato.")
+                return finance_app_pb2.Valore(valore=0.0)
         except mysql.connector.Error as errore:
             print(f"Errore durante la richiesta: {errore}")
             return finance_app_pb2.Valore(valore = 0.0)
@@ -34,7 +38,7 @@ class ServizioQueryStock:
             if connection.is_connected():
                 connection.close()
 
-    def CalcolaMediaValori(request, context):
+    def get_media_valori(request):
         try:
             connection = connessione_db()
             cursor = connection.cursor()
