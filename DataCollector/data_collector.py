@@ -1,9 +1,17 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../CircuitBreaker')))
+
 import time
 import mysql.connector
 from confluent_kafka import Producer
 import yfinance as yf
 import prometheus_client
 import socket
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../CircuitBreaker')))
+
 from circuit_breaker import CircuitBreaker, CircuitBreakerOpenException
                 
 circuit_breaker = CircuitBreaker()
@@ -107,7 +115,7 @@ def delivery_report(err, msg):
         print(f"Message delivered to {msg.topic()} [{msg.partition()}] at offset {msg.offset()}")
 
 def avvia_data_collector():
-    
+        
     print("Data collector avviato.")
 
     print("Condivido le metriche prometheus sulla porta 9100.")

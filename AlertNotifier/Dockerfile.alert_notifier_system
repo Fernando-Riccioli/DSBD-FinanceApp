@@ -2,10 +2,10 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY AlertNotifier/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY alert_notifier_system.py .
+COPY AlertNotifier/alert_notifier_system.py .
 
 ENV PYTHONUNBUFFERED=1
 

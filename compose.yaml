@@ -14,8 +14,10 @@ services:
       - 3307:3306 #porta host:porta container
 
   server:
+    image: server-app:v1
     build:
-      dockerfile: Dockerfile.server
+      context: .
+      dockerfile: gRPC/Dockerfile.server
     environment:
       - MYSQL_HOST=mysqldb
       - MYSQL_PORT=3306
@@ -30,8 +32,10 @@ services:
     restart: always
 
   datacollector:
+    image: datacollector-app:v1
     build:
-      dockerfile: Dockerfile.data_collector
+      context: .
+      dockerfile: DataCollector/Dockerfile.data_collector
     environment:
       - MYSQL_HOST=mysqldb
       - MYSQL_PORT=3306
@@ -45,23 +49,19 @@ services:
     restart: always
 
   alertsystem:
+    image: alertsystem-app:v1
     build:
-      dockerfile: Dockerfile.alert_system
-    environment:
-      - MYSQL_HOST=mysqldb
-      - MYSQL_PORT=3306
-      - MYSQL_ROOT_PASSWORD=1234
-      - MYSQL_DATABASE=finance_app
-      - MYSQL_USER=server
-      - MYSQL_PASSWORD=1234
+      context: .
+      dockerfile: AlertSystem/Dockerfile.alert_system
     depends_on:
-      - mysqldb
       - kafka-broker
     restart: always
   
   alertnotifiersystem:
+    image: alertnotifier-app:v1
     build:
-      dockerfile: Dockerfile.alert_notifier_system
+      context: .
+      dockerfile: AlertNotifier/Dockerfile.alert_notifier_system
     restart: always
     depends_on:
       - kafka-broker
