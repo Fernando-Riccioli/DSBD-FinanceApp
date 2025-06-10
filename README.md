@@ -4,13 +4,7 @@
 
 ## Descrizione 
 
-Un'applicazione moderna per la gestione di dati finanziari, sviluppata con un'**architettura a microservizi** che utilizza **gRPC** per la comunicazione tra componenti. Le funzionalità incluse sono:
-
-- Registrazione e gestione degli utenti
-- Aggiornamento e monitoraggio dei ticker finanziari
-- Configurazione di soglie personalizzate per i ticker
-- Invio automatico di notifiche via email
-- Utilizzo della cache per garantire l'unicità delle operazioni (**at-most-once**)
+Un'applicazione moderna per la gestione di dati finanziari, sviluppata con un'**architettura a microservizi** che utilizza **gRPC** per la comunicazione tra componenti. L'applicazione permette la registrazione e gestione degli utenti, l'aggiornamento e monitoraggio dei ticker finanziari, la configurazione di soglie personalizzate per i ticker e l'invio automatico di notifiche via email. Il sistema implementa l'utilizzo della cache per garantire l'unicità delle operazioni (**at-most-once**).
 
 ## Componenti Principali
 - **MySQL** come databse per la persistenza dei dati
@@ -20,7 +14,7 @@ Un'applicazione moderna per la gestione di dati finanziari, sviluppata con un'**
 - **gRPC** con serializzazione **Protobuf** come protocollo per le chiamate client-server
 - Pattern **CQRS** per separare operazioni di lettura e scrittura
 - **Docker** per la containerizzazione
-- 
+
 ## Build & Deploy
 
 ### Prerequisiti Windows
