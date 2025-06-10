@@ -1,20 +1,27 @@
-# Finance Application - Distributed Systems and Big Data - UNICT - AA 2024-2025
+# FinanceApp - Progetto Distributed Systems & Big Data 2024-2025
 - Fernando Riccioli
 - Daniele Lucifora
 
-## Descrizione
-Il progetto riguarda lo sviluppo di un'applicazione per la gestione delle informazioni finanziarie che utilizza un'**architettura a microservizi** e la comunicazione tramite **gRPC**. L'applicazione permette agli utenti di registrarsi e gestire i propri dati, aggiornare i ticker finanziari e raccogliere informazioni sui valori azionari.<br>
-L'applicazione usa un database **MySQL** e i microservizi sono divisi in due categorie principali: una per la gestione degli utenti e una per la gestione delle informazioni sui ticker azionari. La comunicazione tra client e server avviene tramite chiamate gRPC, utilizzando i protocolli di serializzazione Protobuf.<br>
-L'applicazione offre un sistema di notifiche tramite **Kafka**, che consente agli utenti di impostare soglie minime e massime per i ticker e ricevere notifiche via email al raggiungimento di tali soglie. Inoltre, viene implementato il pattern **CQRS** (Command Query Responsibility Segregation) per gestire in modo indipendente le operazioni di lettura e scrittura sul Server gRPC. <br>
-I microservizi vengono distribuiti su una piattaforma **Kubernetes** utilizzando **Minikube** e viene integrato **Prometheus** per il monitoraggio del Server gRPC e del Data Collector.<br>
-Il progetto implementa anche un sistema di cache per garantire l'unicità delle operazioni (at-most-once), evitando chiamate duplicate per le stesse operazioni. L'applicazione supporta operazioni di registrazione utente, aggiornamento dei ticker, eliminazione degli utenti e recupero dei valori storici e media degli ultimi valori selezionati.
+## Descrizione 
 
+Un'applicazione moderna per la gestione di dati finanziari, sviluppata con un'**architettura a microservizi** che utilizza **gRPC** per la comunicazione tra componenti. Le funzionalità incluse sono:
+
+- Registrazione e gestione degli utenti
+- Aggiornamento e monitoraggio dei ticker finanziari
+- Configurazione di soglie personalizzate per i ticker
+- Invio automatico di notifiche via email
+- Utilizzo della cache per garantire l'unicità delle operazioni (**at-most-once**)
+
+## Componenti Principali
+- **MySQL** come databse per la persistenza dei dati
+- **Kafka** come broker dei messaggi per il sistema di notifica
+- **Kubernetes** (Minikube) per il deployment
+- **Prometheus** per il monitoraggio delle metriche e per l'osservabilità
+- **gRPC** con serializzazione **Protobuf** come protocollo per le chiamate client-server
+- Pattern **CQRS** per separare operazioni di lettura e scrittura
+- **Docker** per la containerizzazione
+- 
 ## Build & Deploy
-### Prerequisiti
-- Python3
-- Git
-- Docker
-- Kubectl e Minikube
 
 ### Prerequisiti Windows
 Per avviare il makefile su Windows è stato scelto di utilizzare `GnuWin32`. Per installarlo dal terminale:
@@ -25,7 +32,7 @@ Per avviare il makefile su Windows è stato scelto di utilizzare `GnuWin32`. Per
 ### Passi introduttivi
 1. Avviare Docker Desktop
 2. Aprire il terminale e selezionare una directory per clonare la repository.
-3. Digitare `git clone https://github.com/danielux86/Homework-3`
+3. Digitare `git clone https://github.com/Fernando-Riccioli/FinanceApp`
 4. Digitare `minikube start --driver=docker` per avviare Minikube.
 5. Digitare `minikube docker-env` e il comando successivo fornito dal terminale.
 
